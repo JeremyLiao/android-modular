@@ -1,7 +1,7 @@
 # android-modular
 一个组件化的实施方案和组件化基础设施框架
 ## 总体框架
-![image](https://github.com/JeremyLiao/android-modular/imgs/img1.png)
+![image](https://github.com/JeremyLiao/android-modular/blob/master/imgs/img1.png)
 ## 设计目标
 1. 支持组件模式和集成模式
 2. 组件模式下每个组件能够单独运行调试
@@ -77,7 +77,7 @@ android {
 
 ###### 配置文件定义
 在assets/module_config下面生成一个以配置文件classname为文件名的文件
-![image](https://github.com/JeremyLiao/android-modular/imgs/img2.png)
+![image](https://github.com/JeremyLiao/android-modular/blob/master/imgs/img2.png)
 
 ### 相关资料
 参考了GitHub上其他几个组件化框架，在此表示感谢：
