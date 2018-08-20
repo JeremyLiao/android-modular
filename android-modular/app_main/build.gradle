@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+apply from: "${project.rootDir}/base_config.gradle"
+
+android {
+    defaultConfig {
+        applicationId "com.jeremyliao.android_modular"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':lib_common')
+    if (!IS_MODULE_MODE.toBoolean()) {
+        implementation project(':module_a')
+        implementation project(':module_b')
+    }
+    implementation project(':module_a_export')
+    implementation project(':module_b_export')
+}

@@ -1,0 +1,1 @@
+include ':app_main', ':module_a', ':lib_common', ':module_a_export', ':module_b', ':module_b_export', ':modular'
