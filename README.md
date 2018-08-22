@@ -14,6 +14,21 @@
 - 组件消息总线：ModuleEventBus
 - 组件间rpc框架：ModuleRpcManager
 
+#### 引入
+- Maven
+```
+<dependency>
+  <groupId>com.jeremyliao</groupId>
+  <artifactId>modular</artifactId>
+  <version>0.0.1</version>
+  <type>pom</type>
+</dependency>
+```
+- Gradle
+```
+compile 'com.jeremyliao:modular:0.0.1'
+```
+
 #### 组件消息总线
 消息必须在每个组件的export-module中预先定义，避免了消息滥发
 #### 组件间rpc框架
