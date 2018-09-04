@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'modular-plugin'
 apply from: "${project.rootDir}/base_config.gradle"
+
 
 android {
     defaultConfig {
@@ -16,6 +18,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    annotationProcessor project(':modular-compiler')
+    implementation project(':modular-base')
     implementation project(':lib_common')
     if (!IS_MODULE_MODE.toBoolean()) {
         implementation project(':module_a')

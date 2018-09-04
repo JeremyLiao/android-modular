@@ -1,5 +1,13 @@
 package com.jeremyliao.modular;
 
+import android.text.TextUtils;
+
+import com.jeremyliao.modular.exception.InterfaceNotFoundException;
+import com.jeremyliao.modular.exception.ModuleNotFoundException;
+import com.jeremyliao.modular_base.base.IInterface;
+import com.jeremyliao.modular_base.inner.bean.ModuleInfo;
+import com.jeremyliao.modular_base.inner.bean.ModuleServiceInfo;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -20,75 +28,81 @@ public class ModuleRpcManager {
         return ModuleRpcManager.SingletonHolder.INSTANCE;
     }
 
-    private Map<Class<? extends IInterface>, Object> rpcMap = new HashMap<>();
+    private Map<String, Map<String, ModuleServiceWrapper>> rpcMap = new HashMap<>();
 
     private ModuleRpcManager() {
     }
 
-    void init(List<IModuleConfig> moduleConfigs) {
-        if (moduleConfigs == null) {
+    void init(List<ModuleInfo> moduleInfos) {
+        if (moduleInfos == null) {
             return;
         }
-        if (moduleConfigs.size() == 0) {
+        if (moduleInfos.size() == 0) {
             return;
         }
-        for (IModuleConfig config : moduleConfigs) {
-            Class<? extends IInterface> type = config.getRpcInterfaceClass();
-            String implementClassName = config.getRpcImplementClassName();
-            if (type == null) {
-                break;
+        for (ModuleInfo moduleInfo : moduleInfos) {
+            if (TextUtils.isEmpty(moduleInfo.getModule())) {
+                continue;
             }
-            if (implementClassName == null) {
-                break;
+            if (moduleInfo.getServiceInfos() == null || moduleInfo.getServiceInfos().size() == 0) {
+                continue;
             }
-            Object impl = null;
-            try {
-                impl = Class.forName(implementClassName).newInstance();
-            } catch (Exception e) {
-                impl = null;
+            if (!rpcMap.containsKey(moduleInfo.getModule())) {
+                rpcMap.put(moduleInfo.getModule(), new HashMap<String, ModuleServiceWrapper>());
             }
-            if (impl == null) {
-                break;
+            Map<String, ModuleServiceWrapper> serviceWrapperMap = rpcMap.get(moduleInfo.getModule());
+            for (ModuleServiceInfo serviceInfo : moduleInfo.getServiceInfos()) {
+                if (!serviceWrapperMap.containsKey(serviceInfo.getInterfaceClassName())) {
+                    serviceWrapperMap.put(serviceInfo.getInterfaceClassName(), new ModuleServiceWrapper(serviceInfo));
+                }
             }
-            if (!type.isInterface()) {
-                break;
-            }
-            if (!type.isInstance(impl)) {
-                break;
-            }
-            rpcMap.put(type, impl);
         }
     }
 
-    public <T extends IInterface> T call(Class<T> interfaceType) throws Throwable {
-        T instance = (T) Proxy.newProxyInstance(getClass().getClassLoader(),
-                new Class[]{interfaceType}, new RpcProxyHandler(interfaceType));
-        return instance;
+    public <T extends IInterface> T call(String moduleName, Class<T> interfaceType) throws
+            ModuleNotFoundException, InterfaceNotFoundException, ClassNotFoundException,
+            IllegalAccessException, InstantiationException {
+        if (!rpcMap.containsKey(moduleName)) {
+            throw new ModuleNotFoundException(moduleName);
+        }
+        Map<String, ModuleServiceWrapper> serviceWrapperMap = rpcMap.get(moduleName);
+        if (!serviceWrapperMap.containsKey(interfaceType.getCanonicalName())) {
+            throw new InterfaceNotFoundException(interfaceType);
+        }
+        ModuleServiceWrapper serviceWrapper = serviceWrapperMap.get(interfaceType.getCanonicalName());
+        Object target = null;
+        if (serviceWrapper.moduleServiceInfo.isSingleton()) {
+            if (serviceWrapper.target == null) {
+                serviceWrapper.target = Class.forName(serviceWrapper.moduleServiceInfo.getImplementClassName()).newInstance();
+            }
+            target = serviceWrapper.target;
+        } else {
+            target = Class.forName(serviceWrapper.moduleServiceInfo.getImplementClassName()).newInstance();
+        }
+        return (T) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class[]{interfaceType}, new RpcProxyHandler(target));
     }
 
     private class RpcProxyHandler implements InvocationHandler {
 
-        private Class<? extends IInterface> interfaceType;
+        private Object target;
 
-        public RpcProxyHandler(Class<? extends IInterface> interfaceType) {
-            this.interfaceType = interfaceType;
+        public RpcProxyHandler(Object target) {
+            this.target = target;
         }
 
         @Override
         public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-            if (interfaceType == null) {
-                throw new NullPointerException();
-            }
-            if (!rpcMap.containsKey(interfaceType)) {
-                throw new InterfaceNotFoundException(interfaceType);
-            }
-            return method.invoke(rpcMap.get(interfaceType), objects);
+            return method.invoke(target, objects);
         }
     }
 
-    public static class InterfaceNotFoundException extends RuntimeException {
-        public InterfaceNotFoundException(Class type) {
-            super("InterfaceNotFoundException: " + type);
+    private static class ModuleServiceWrapper {
+        private ModuleServiceInfo moduleServiceInfo;
+        private Object target;
+
+        public ModuleServiceWrapper(ModuleServiceInfo moduleServiceInfo) {
+            this.moduleServiceInfo = moduleServiceInfo;
         }
     }
 }

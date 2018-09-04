@@ -12,7 +12,6 @@ import com.jeremyliao.modular.ModuleEventBus;
 import com.jeremyliao.modular.ModuleRpcManager;
 import com.jeremyliao.module_a_export.ModuleAEvents;
 import com.jeremyliao.module_a_export.ModuleAInterface;
-import com.jeremyliao.module_a_export.ModuleAModuleConfig;
 import com.jeremyliao.module_b_export.ModuleBRouteConst;
 
 @Route(ModuleBRouteConst.MODULE_B_MAIN)
@@ -23,7 +22,7 @@ public class ModuleBActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_module_b);
         ModuleEventBus.get()
-                .with(ModuleAModuleConfig.MODULE_NAME, ModuleAEvents.SHOW_TOAST, String.class)
+                .with("module_a", ModuleAEvents.SHOW_TOAST, String.class)
                 .observe(this, new Observer<String>() {
                     @Override
                     public void onChanged(@Nullable String s) {
@@ -42,7 +41,7 @@ public class ModuleBActivity extends AppCompatActivity {
         String userName = null;
         try {
             userName = ModuleRpcManager.get()
-                    .call(ModuleAInterface.class)
+                    .call("module_a", ModuleAInterface.class)
                     .getUserName();
         } catch (Throwable throwable) {
         }

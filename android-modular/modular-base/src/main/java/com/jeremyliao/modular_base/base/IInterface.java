@@ -1,4 +1,4 @@
-package com.jeremyliao.modular;
+package com.jeremyliao.modular_base.base;
 
 /**
  * Created by liaohailiang on 2018/8/19.

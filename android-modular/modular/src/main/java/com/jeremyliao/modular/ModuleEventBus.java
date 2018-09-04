@@ -2,19 +2,14 @@ package com.jeremyliao.modular;
 
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.jeremyliao.modular.liveevent.LiveEvent;
+import com.jeremyliao.modular_base.inner.bean.ModuleEventsInfo;
+import com.jeremyliao.modular_base.inner.bean.ModuleInfo;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,34 +35,33 @@ public final class ModuleEventBus {
 
     private final Observable empty = new EmptyObservable();
 
-    void init(List<IModuleConfig> moduleConfigs) {
-        if (moduleConfigs == null) {
+    void init(List<ModuleInfo> moduleInfos) {
+        if (moduleInfos == null) {
             return;
         }
-        if (moduleConfigs.size() == 0) {
+        if (moduleInfos.size() == 0) {
             return;
         }
-        for (IModuleConfig config : moduleConfigs) {
-            HashMap<String, BusLiveEvent<Object>> moduleMap = new HashMap<>();
-            Class<? extends IEvent> type = config.getEventDefineClass();
-            if (type != null) {
-                Field[] fields = type.getDeclaredFields();
-                for (Field field : fields) {
-                    int modifiers = field.getModifiers();
-
-                    if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
-                        try {
-                            Object value = field.get(type);
-                            if (value instanceof String) {
-                                moduleMap.put((String) value, new BusLiveEvent<>());
-                            }
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
+        for (ModuleInfo moduleInfo : moduleInfos) {
+            ModuleEventsInfo eventsInfo = moduleInfo.getEventsInfo();
+            if (eventsInfo == null) {
+                continue;
+            }
+            if (TextUtils.isEmpty(eventsInfo.getModule())) {
+                continue;
+            }
+            if (eventsInfo.getEvents() == null) {
+                continue;
+            }
+            if (!bus.containsKey(eventsInfo.getModule())) {
+                bus.put(eventsInfo.getModule(), new HashMap<String, BusLiveEvent<Object>>());
+            }
+            Map<String, BusLiveEvent<Object>> eventMap = bus.get(eventsInfo.getModule());
+            for (String key : eventsInfo.getEvents()) {
+                if (!eventMap.containsKey(key)) {
+                    eventMap.put(key, new BusLiveEvent<Object>());
                 }
             }
-            bus.put(config.getModuleName(), moduleMap);
         }
     }
 

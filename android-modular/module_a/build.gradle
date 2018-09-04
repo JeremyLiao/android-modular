@@ -6,4 +6,5 @@ dependencies {
     implementation project(':lib_common')
     implementation project(':module_a_export')
     implementation project(':module_b_export')
+    annotationProcessor project(':modular-compiler')
 }
