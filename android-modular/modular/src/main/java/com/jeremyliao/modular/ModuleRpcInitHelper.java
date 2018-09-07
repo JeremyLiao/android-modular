@@ -17,28 +17,22 @@ import java.util.List;
 /**
  * Created by liaohailiang on 2018/8/18.
  */
-public final class ModuleManager {
+public final class ModuleRpcInitHelper {
 
     private static final String ASSET_PATH = "modules/module_info";
 
-    private static class SingletonHolder {
-        private static final ModuleManager INSTANCE = new ModuleManager();
-    }
-
-    public static ModuleManager get() {
-        return SingletonHolder.INSTANCE;
-    }
-
-    private ModuleManager() {
-        init();
+    private ModuleRpcInitHelper() {
     }
 
     private Context getContext() {
         return AppUtils.getApplicationContext();
     }
 
-    private void init() {
-        AssetManager asset = getContext().getAssets();
+    public static void init(Context context) {
+        if (context == null) {
+            context = AppUtils.getApplicationContext();
+        }
+        AssetManager asset = context.getAssets();
         try {
             List<ModuleInfo> moduleInfos = new ArrayList<>();
             InputStream inputStream = asset.open(ASSET_PATH);
@@ -48,7 +42,6 @@ public final class ModuleManager {
                 ModuleInfo moduleInfo = GsonUtil.fromJson(line, ModuleInfo.class);
                 moduleInfos.add(moduleInfo);
             }
-            ModuleEventBus.get().init(moduleInfos);
             ModuleRpcManager.get().init(moduleInfos);
             reader.close();
             inputStream.close();

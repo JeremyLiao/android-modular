@@ -1,12 +1,14 @@
 package com.jeremyliao.modular_compiler;
 
 import com.google.auto.service.AutoService;
-import com.jeremyliao.modular_base.anotation.ModuleEvents;
 import com.jeremyliao.modular_base.anotation.ModuleService;
-import com.jeremyliao.modular_base.inner.bean.ModuleEventsInfo;
 import com.jeremyliao.modular_base.inner.bean.ModuleInfo;
 import com.jeremyliao.modular_base.inner.bean.ModuleServiceInfo;
 import com.jeremyliao.modular_base.inner.utils.GsonUtil;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -28,6 +30,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypesException;
@@ -46,7 +49,8 @@ import static com.google.common.base.Charsets.UTF_8;
 public class ModularProcessor extends AbstractProcessor {
 
     private static final String TAG = "-----------ModularProcessor----------";
-    private static final String MODULAR_PATH = "META-INF/modules/";
+    private static final String MODULAR_PATH = "META-INF/modules/module_info/";
+    private static final String MODULAR_EVENT_PATH = "META-INF/modules/module_events/";
     private static final String MODULE_NAME = "moduleName";
 
     protected Filer filer;
@@ -55,6 +59,7 @@ public class ModularProcessor extends AbstractProcessor {
     private String moduleName = null;
 
     private Map<String, ModuleInfo> moduleInfoMap = new HashMap<>();
+    private Map<String, String> moduleEventMap = new HashMap<>();
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
@@ -86,7 +91,6 @@ public class ModularProcessor extends AbstractProcessor {
 
     private void processAnnotations(RoundEnvironment roundEnvironment) {
         processService(roundEnvironment);
-        processEvents(roundEnvironment);
     }
 
     private void processService(RoundEnvironment roundEnvironment) {
@@ -121,43 +125,20 @@ public class ModularProcessor extends AbstractProcessor {
         }
     }
 
-    private void processEvents(RoundEnvironment roundEnvironment) {
-        for (Element element : roundEnvironment.getElementsAnnotatedWith(ModuleEvents.class)) {
-            if (element.getKind() == ElementKind.CLASS) {
-                TypeElement typeElement = (TypeElement) element;
-                ModuleEvents moduleEvents = typeElement.getAnnotation(ModuleEvents.class);
-                System.out.println(TAG + typeElement.getSimpleName());
-                System.out.println(TAG + typeElement.getQualifiedName());
-                ModuleEventsInfo eventsInfo = new ModuleEventsInfo();
-                eventsInfo.setModule(moduleEvents.module());
-                List<String> events = new ArrayList<>();
-                List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
-                for (Element element1 : enclosedElements) {
-                    System.out.println(TAG + "element1: " + element1);
-                    if (element1.getKind() == ElementKind.FIELD) {
-                        VariableElement ve = (VariableElement) element1;
-                        Object constantValue = ve.getConstantValue();
-                        System.out.println(TAG + "constantValue: " + constantValue);
-                        if (constantValue != null && constantValue instanceof String) {
-                            events.add((String) constantValue);
-                        }
-                    }
-                }
-                eventsInfo.setEvents(events);
-                eventsInfo.setEvents(events);
-                if (!moduleInfoMap.containsKey(moduleEvents.module())) {
-                    moduleInfoMap.put(moduleEvents.module(), ModuleInfo.newInstance(moduleEvents.module()));
-                }
-                moduleInfoMap.get(moduleEvents.module()).setEventsInfo(eventsInfo);
-            }
+    private static String upperCaseFirst(String str) {
+        if (str == null || str.length() == 0) {
+            return str;
         }
+        if (str.length() == 1) {
+            return str.toUpperCase();
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotataions = new LinkedHashSet<>();
         annotataions.add(ModuleService.class.getCanonicalName());
-        annotataions.add(ModuleEvents.class.getCanonicalName());
         return annotataions;
     }
 
@@ -179,6 +160,9 @@ public class ModularProcessor extends AbstractProcessor {
         for (String name : moduleInfoMap.keySet()) {
             ModuleInfo moduleInfo = moduleInfoMap.get(name);
             writeServiceFile(MODULAR_PATH + moduleName, GsonUtil.toJson(moduleInfo));
+        }
+        for (String name : moduleEventMap.keySet()) {
+            writeServiceFile(MODULAR_EVENT_PATH + moduleName, moduleEventMap.get(name));
         }
     }
 

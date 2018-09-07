@@ -4,6 +4,15 @@ import com.android.SdkConstants;
 import com.android.build.gradle.api.ApplicationVariant;
 import com.android.builder.model.AndroidProject;
 import com.android.utils.FileUtils;
+import com.google.gson.Gson;
+import com.jeremyliao.modular_base.inner.bean.Event;
+import com.jeremyliao.modular_base.inner.bean.ModuleEventsInfo;
+import com.jeremyliao.modular_base.inner.bean.ModuleInfo;
+import com.jeremyliao.modular_base.inner.utils.GsonUtil;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
@@ -31,13 +40,15 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import javax.lang.model.element.Modifier;
+
 /**
  * Created by liaohailiang on 2018/8/30.
  */
 public class ServiceProcessor {
 
     private static final String TAG = "-----------ServiceProcessor----------";
-    private static final String MODULAR_PATH = "META-INF/modules/";
+    private static final String MODULAR_PATH = "META-INF/modules/module_info/";
     private static final String ASSET_PATH = "modules/";
     private static final String ASSET_File = "module_info";
 
@@ -232,5 +243,13 @@ public class ServiceProcessor {
                 "classes",
                 variant.getDirName(),
                 path);
+    }
+
+    private static String getAptDir(Project project, ApplicationVariant variant) {
+        return FileUtils.join(project.getBuildDir().getPath(),
+                AndroidProject.FD_GENERATED,
+                "source",
+                "apt",
+                variant.getDirName());
     }
 }

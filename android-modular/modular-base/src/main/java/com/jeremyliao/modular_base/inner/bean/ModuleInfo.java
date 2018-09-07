@@ -17,7 +17,6 @@ public class ModuleInfo {
 
     private String module;
     private List<ModuleServiceInfo> serviceInfos;
-    private ModuleEventsInfo eventsInfo;
 
     public String getModule() {
         return module;
@@ -33,13 +32,5 @@ public class ModuleInfo {
 
     public void setServiceInfos(List<ModuleServiceInfo> serviceInfos) {
         this.serviceInfos = serviceInfos;
-    }
-
-    public ModuleEventsInfo getEventsInfo() {
-        return eventsInfo;
-    }
-
-    public void setEventsInfo(ModuleEventsInfo eventsInfo) {
-        this.eventsInfo = eventsInfo;
     }
 }
