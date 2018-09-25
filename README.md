@@ -1,7 +1,9 @@
 # android-modular
-一个组件化的实施方案和组件化基础设施框架
-## 总体框架
-![image](https://github.com/JeremyLiao/android-modular/blob/master/imgs/img1.png)
+一个组件化的实施方案
+## 方案特点
+1. 对组件拆分成对外暴露部分ModuleExport和组件实现部分ModuleImpl，以实现组件间的完全解耦
+2. 实现了一个组件间rpc框架：ModuleRpcManager
+
 ## 设计目标
 1. 支持组件模式和集成模式
 2. 组件模式下每个组件能够单独运行调试
@@ -10,27 +12,6 @@
 5. 支持总线消息框架
 6. 支持组件间接口调用
 
-## 组件化基础设施框架
-- 组件消息总线：ModuleEventBus
-- 组件间rpc框架：ModuleRpcManager
-
-#### 引入
-- Maven
-```
-<dependency>
-  <groupId>com.jeremyliao</groupId>
-  <artifactId>modular</artifactId>
-  <version>0.0.1</version>
-  <type>pom</type>
-</dependency>
-```
-- Gradle
-```
-compile 'com.jeremyliao:modular:0.0.1'
-```
-
-#### 组件消息总线
-消息必须在每个组件的export-module中预先定义，避免了消息滥发
 #### 组件间rpc框架
 接口必须在每个组件的export-module中预先定义
 #### router框架
@@ -85,14 +66,9 @@ android {
 
 ##### module_x_export 对外暴露的接口module的实现
 ###### 配置组件
-1. module config 组件配置
-2. 组件消息总线消息定义
-3. 组件接口定义
-4. 组件路由表定义
-
-###### 配置文件定义
-在assets/module_config下面生成一个以配置文件classname为文件名的文件
-![image](https://github.com/JeremyLiao/android-modular/blob/master/imgs/img2.png)
+1. 组件消息总线消息定义
+2. 组件接口定义
+3. 组件路由表定义
 
 ### 相关资料
 参考了GitHub上其他几个组件化框架，在此表示感谢：
