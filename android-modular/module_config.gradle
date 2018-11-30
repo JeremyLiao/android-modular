@@ -1,3 +1,4 @@
+//验证在库模式和主模式之间切换的一种方式
 if (IS_MODULE_MODE.toBoolean()) {
     apply plugin: 'com.android.application'
 } else {
