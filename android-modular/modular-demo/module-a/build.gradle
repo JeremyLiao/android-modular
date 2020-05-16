@@ -1,0 +1,8 @@
+apply plugin: 'com.android.library'
+apply from: "${project.rootDir}/base_config.gradle"
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':modular-demo:module-a-interface')
+    implementation project(':modular-demo:module-b-interface')
+}

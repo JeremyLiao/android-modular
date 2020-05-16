@@ -1,0 +1,14 @@
+apply plugin: 'maven'
+
+//group和version
+group = 'com.jeremyliao'
+version = '0.0.1'
+
+//打包到本地或者远程Maven库
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../../repo'))
+        }
+    }
+}

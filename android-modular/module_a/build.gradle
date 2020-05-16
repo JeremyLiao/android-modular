@@ -1,9 +1,0 @@
-apply from: "${project.rootDir}/module_config.gradle"
-apply from: "${project.rootDir}/base_config.gradle"
-
-dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':lib_common')
-    implementation project(':module_a_export')
-    implementation project(':module_b_export')
-}

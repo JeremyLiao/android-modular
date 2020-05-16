@@ -1,7 +1,0 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jeremyliao.module_b">
-
-    <application android:name="com.jeremyliao.lib_common.BaseApplication">
-        <activity android:name=".ModuleBActivity"></activity>
-    </application>
-</manifest>

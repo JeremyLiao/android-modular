@@ -1,0 +1,36 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+    maven {
+        url uri('../../repo')
+    }
+    mavenLocal()
+    jcenter()
+}
+
+sourceSets {
+    main {
+        groovy {
+            srcDir 'src/main/groovy'
+        }
+
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+}
+
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation 'com.squareup:javapoet:1.11.1'
+    implementation 'com.android.tools.build:gradle:3.2.1'
+    implementation 'com.android.tools.build:transform-api:1.5.0'
+    implementation 'com.jeremyliao:modular-base:0.0.1'
+//    implementation project(':modular-tool:modular-base')
+}
+
+apply from: '../../upload.gradle'
