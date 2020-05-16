@@ -25,6 +25,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    api project(':modular-tool:modular-base')
     implementation 'com.google.code.gson:gson:2.8.5'
+    api 'com.jeremyliao.modular-tools:base:0.0.1'
+//    api project(':modular-tool:modular-base')
 }

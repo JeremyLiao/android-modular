@@ -6,7 +6,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.google.auto.service:auto-service:1.0-rc4'
     implementation 'com.squareup:javapoet:1.11.1'
-    implementation project(':modular-tool:modular-base')
+    implementation 'com.jeremyliao.modular-tools:base:0.0.1'
+//    implementation project(':modular-tool:modular-base')
     compileOnly files(Jvm.current().getToolsJar())
 }
 
