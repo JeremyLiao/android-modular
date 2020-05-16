@@ -1,77 +1,105 @@
 # android-modular
-一个组件化的实施方案
-## 方案特点
-1. 对组件拆分成对外暴露部分ModuleExport和组件实现部分ModuleImpl，以实现组件间的完全解耦
-2. 实现了一个组件间rpc框架：ModuleRpcManager
+一套Android组件化的实施方案和支撑框架
+![image](https://user-images.githubusercontent.com/23290617/82115483-98efe000-9795-11ea-959c-e4d9bbb6e03e.png)
 
-## 设计目标
-1. 支持组件模式和集成模式
-2. 组件模式下每个组件能够单独运行调试
-3. 组件之前完全隔离
-4. 支持路由跳转
-5. 支持总线消息框架
-6. 支持组件间接口调用
+## 组件通信框架
+- 组件方法调用框架
+    - 编译时组件
+    - 插件
+    - 运行时框架
+- 组件消息总线框架
 
-#### 组件间rpc框架
-接口必须在每个组件的export-module中预先定义
-#### router框架
-route path在每个组件的export-module中预先定义，Demo中使用的router框架是[chenenyu/Router](https://github.com/chenenyu/Router)，可替换成其他框架
+## 组件化构架
+- 壳工程
+- 组件层
+    - 组件对外暴露层
+        - 接口定义
+        - 消息定义
+    - 组件实现层
+- 公共模块
+![image](https://user-images.githubusercontent.com/23290617/82115811-b3c35400-9797-11ea-96ba-0a8155c42644.png)
 
-## 组件化实施方案
-#### 集成模式和组件模式切换
-在gradle.properties中定义
-
-```
-IS_MODULE_MODE=false
-```
-将 IS_MODULE_MODE改为你需要的开发模式（true/false）， 然后点击 "Sync Project" 按钮同步项目
-#### 创建一个组件
-一个组件包含两个module：
-- module_x_export 组件对外暴露的接口
-- module_x 组件本身的实现
-
-##### module_x module的实现
-###### 在组件的build.gradle中apply：
+## 组件结构
+### 组件对外暴露层
+![image](https://user-images.githubusercontent.com/23290617/82115963-bc685a00-9798-11ea-901e-b4aa0564c412.png)
+#### 消息定义
 
 ```
-apply from: "${project.rootDir}/module_config.gradle"
-```
-这个module_config.gradle定义在rootDir下：
+public class ModuleBEvent implements IModularEvent {
+    final public String content;
 
-```
-if (IS_MODULE_MODE.toBoolean()) {
-    apply plugin: 'com.android.application'
-} else {
-    apply plugin: 'com.android.library'
-}
-
-android {
-    sourceSets {
-        main {
-            if (IS_MODULE_MODE.toBoolean()) {
-                manifest.srcFile 'src/main/module/AndroidManifest.xml'
-            } else {
-                manifest.srcFile 'src/main/AndroidManifest.xml'
-                java {
-                    exclude 'module/**'
-                }
-            }
-        }
+    public ModuleBEvent(String content) {
+        this.content = content;
     }
 }
 ```
-###### 定义两个AndroidManifest.xml：
-1. src/main/module/AndroidManifest.xml
-2. src/main/AndroidManifest.xml
+#### 接口定义
 
-##### module_x_export 对外暴露的接口module的实现
-###### 配置组件
-1. 组件消息总线消息定义
-2. 组件接口定义
-3. 组件路由表定义
+```
+public interface ModuleBInterface extends IInterface {
+    void launchModuleBMainPage(Context context);
+}
+```
+### 组件实现
+用注解@ModuleService制定实现的接口
 
-### 相关资料
-参考了GitHub上其他几个组件化框架，在此表示感谢：
-1. [luckybilly/CC](https://github.com/luckybilly/CC)
-2. [guiying712/AndroidModulePattern](https://github.com/guiying712/AndroidModulePattern)
-3. [LiushuiXiaoxia/AndroidModular](https://github.com/LiushuiXiaoxia/AndroidModular)
+```
+@ModuleService(interfaceDefine = ModuleBInterface.class)
+public class ModuleBInterfaceImpl implements ModuleBInterface {
+    @Override
+    public void launchModuleBMainPage(Context context) {
+        if (context == null) {
+            return;
+        }
+        context.startActivity(new Intent(context, ModuleBActivity.class));
+    }
+}
+```
+## 组件间通信
+#### 组件间接口调用
+
+```
+userName = ModuleRpcManager.get()
+        .call(ModuleAInterface.class)
+        .getUserName();
+```
+#### 组件间消息
+##### 监听消息
+
+```
+ModularBus.toObservable(ModuleBEvent.class)
+        .observe(this, moduleBEvent ->
+                Toast.makeText(ModuleAActivity.this,
+                        moduleBEvent != null ? moduleBEvent.content : "",
+                        Toast.LENGTH_SHORT).show());
+```
+
+##### 发送消息
+
+```
+ModularBus.toObservable(ModuleBEvent.class).post(new ModuleBEvent("hello world"));
+```
+## 使用组件通信框架
+### 使用组件接口调用框架
+##### 配置classpath
+```
+classpath "com.jeremyliao.modular-tools:plugin:0.0.1"
+```
+##### 在组件中处理注解
+```
+annotationProcessor "com.jeremyliao.modular-tools:processor:0.0.1"
+```
+##### 在壳工程中使用插件
+```
+apply plugin: 'modular-plugin'
+```
+##### 运行时使用
+
+```
+implementation "com.jeremyliao.modular-tools:manager:0.0.1"
+```
+
+### 使用组件消息总线框架
+```
+implementation "com.jeremyliao.modular-tools:bus:0.0.1"
+```
