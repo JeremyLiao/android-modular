@@ -14,7 +14,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        if (USE_LOCAL_LIB) {
+        if (USE_LOCAL_LIB.toBoolean()) {
             classpath "com.jeremyliao:modular-plugin:0.0.1"
         } else {
             classpath 'com.jeremyliao.modular-tools:plugin:0.0.1'

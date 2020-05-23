@@ -26,7 +26,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
-    if (USE_LOCAL_LIB) {
+    if (USE_LOCAL_LIB.toBoolean()) {
         api project(':modular-tool:modular-base')
     } else {
         api 'com.jeremyliao.modular-tools:base:0.0.1'

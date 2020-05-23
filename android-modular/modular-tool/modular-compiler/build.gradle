@@ -7,7 +7,7 @@ dependencies {
     implementation 'com.google.auto.service:auto-service:1.0-rc4'
     implementation 'com.squareup:javapoet:1.11.1'
     compileOnly files(Jvm.current().getToolsJar())
-    if (USE_LOCAL_LIB) {
+    if (USE_LOCAL_LIB.toBoolean()) {
         implementation project(':modular-tool:modular-base')
     } else {
         implementation 'com.jeremyliao.modular-tools:base:0.0.1'
