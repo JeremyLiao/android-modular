@@ -29,9 +29,12 @@ dependencies {
     implementation 'com.squareup:javapoet:1.11.1'
     implementation 'com.android.tools.build:gradle:3.2.1'
     implementation 'com.android.tools.build:transform-api:1.5.0'
-    implementation 'com.jeremyliao.modular-tools:base:0.0.1'
-//    implementation 'com.jeremyliao:modular-base:0.0.1'
+    if (USE_LOCAL_LIB) {
+        implementation 'com.jeremyliao:modular-base:0.0.1'
 //    implementation project(':modular-tool:modular-base')
+    } else {
+        implementation 'com.jeremyliao.modular-tools:base:0.0.1'
+    }
 }
 
 apply from: '../../upload.gradle'

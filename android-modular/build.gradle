@@ -14,7 +14,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath "com.jeremyliao:modular-plugin:0.0.1"
+        if (USE_LOCAL_LIB) {
+            classpath "com.jeremyliao:modular-plugin:0.0.1"
+        } else {
+            classpath 'com.jeremyliao.modular-tools:plugin:0.0.1'
+        }
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
