@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.jeremyliao.android.modular.bus.ModularBus;
+import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.jeremyliao.modular.ModuleRpcManager;
 import com.jeremyliao.modulea.export.ModuleAInterface;
 import com.jeremyliao.moduleb.databinding.ActivityModuleBBinding;
@@ -35,6 +35,6 @@ public class ModuleBActivity extends AppCompatActivity {
     }
 
     public void sendMsg() {
-        ModularBus.toObservable(ModuleBEvent.class).post(new ModuleBEvent("hello world"));
+        LiveEventBus.get(ModuleBEvent.class).post(new ModuleBEvent("hello world"));
     }
 }

@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.jeremyliao.android.modular.bus.ModularBus;
+import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.jeremyliao.modular.ModuleRpcManager;
 import com.jeremyliao.modulea.databinding.ActivityModuleABinding;
 import com.jeremyliao.moduleb.export.ModuleBInterface;
@@ -21,7 +21,7 @@ public class ModuleAActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_module_a);
         binding.setHandler(this);
         binding.setLifecycleOwner(this);
-        ModularBus.toObservable(ModuleBEvent.class)
+        LiveEventBus.get(ModuleBEvent.class)
                 .observe(this, moduleBEvent ->
                         Toast.makeText(ModuleAActivity.this,
                                 moduleBEvent != null ? moduleBEvent.content : "",
