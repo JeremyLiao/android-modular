@@ -101,5 +101,5 @@ implementation "com.jeremyliao.modular-tools:manager:0.0.1"
 
 ### 使用组件消息总线框架
 ```
-implementation "com.jeremyliao.modular-tools:bus:0.0.1"
+implementation 'com.jeremyliao:live-event-bus:1.7.2'
 ```
